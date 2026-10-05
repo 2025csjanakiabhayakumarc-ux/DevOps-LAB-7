@@ -1,40 +1,26 @@
-
 import unittest
-from unittest.mock import patch
-from io import StringIO
-from student_marks import calculate_result
+from marks import calculate_result
 
 
-class TestStudentMarks(unittest.TestCase):
+class TestMarks(unittest.TestCase):
 
-    @patch("builtins.input", side_effect=["Janaki", "85", "90", "80"])
-    @patch("sys.stdout", new_callable=StringIO)
-    def test_pass_result(self, mock_stdout, mock_input):
-        calculate_result()
-        output = mock_stdout.getvalue()
-        self.assertIn("Percentage: 85.00%", output)
-        self.assertIn("Result: PASS", output)
+    def test_pass(self):
+        total, percentage, result = calculate_result([80, 90, 70])
+        self.assertEqual(total, 240)
+        self.assertEqual(percentage, 80)
+        self.assertEqual(result, "PASS")
 
-    @patch("builtins.input", side_effect=["Rahul", "20", "90", "80"])
-    @patch("sys.stdout", new_callable=StringIO)
-    def test_fail_result(self, mock_stdout, mock_input):
-        calculate_result()
-        output = mock_stdout.getvalue()
-        self.assertIn("Result: FAIL", output)
+    def test_fail(self):
+        _, _, result = calculate_result([20, 90, 70])
+        self.assertEqual(result, "FAIL")
 
-    @patch("builtins.input", side_effect=["Asha", "120", "80", "70"])
-    @patch("sys.stdout", new_callable=StringIO)
-    def test_invalid_marks(self, mock_stdout, mock_input):
-        calculate_result()
-        output = mock_stdout.getvalue()
-        self.assertIn("Marks must be between 0 and 100", output)
+    def test_invalid_marks(self):
+        with self.assertRaises(ValueError):
+            calculate_result([120, 80, 70])
 
-    @patch("builtins.input", side_effect=["Asha", "abc", "80", "70"])
-    @patch("sys.stdout", new_callable=StringIO)
-    def test_invalid_input(self, mock_stdout, mock_input):
-        calculate_result()
-        output = mock_stdout.getvalue()
-        self.assertIn("Please enter valid numeric marks", output)
+    def test_empty_marks(self):
+        with self.assertRaises(ValueError):
+            calculate_result([])
 
 
 if __name__ == "__main__":
